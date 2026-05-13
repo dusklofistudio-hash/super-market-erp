@@ -6,6 +6,9 @@ import { createInertiaApp } from '@inertiajs/react';
 import AdminLayout from './Layouts/AdminLayout';
 import { I18nProvider } from './lib/i18n';
 import { PermissionProvider } from './lib/permissions';
+// Side-effect import so window.smkBindRowActions is registered on boot.
+// Yajra-rendered tables call it from each page's useEffect.
+import './Components/RowActions';
 
 const pages = import.meta.glob('./Pages/**/*.jsx', { eager: false });
 
