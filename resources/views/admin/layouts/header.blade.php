@@ -50,7 +50,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="smkUserBtn">
             <li>
-                <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
+                <a class="dropdown-item" href="{{ route('admin.profile.edit') }}" data-i18n="my_profile">
                     {{ __('messages.my_profile') }}
                 </a>
             </li>
@@ -58,7 +58,7 @@
             <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="dropdown-item text-danger">
+                    <button type="submit" class="dropdown-item text-danger" data-i18n="logout">
                         {{ __('messages.logout') }}
                     </button>
                 </form>

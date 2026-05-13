@@ -44,13 +44,15 @@
                     if (label) label.textContent = locale.toUpperCase();
                     const flag = document.querySelector('#smkLangBtn .lang-flag');
                     if (flag) flag.className = 'lang-flag ' + locale;
-                    // Update menu strings rendered from Blade.
-                    if (data.menu) {
-                        document.querySelectorAll('[data-i18n]').forEach(function (el) {
-                            const key = el.getAttribute('data-i18n');
-                            if (data.menu[key]) el.textContent = data.menu[key];
-                        });
-                    }
+                    // Update every Blade-rendered i18n element in place. The
+                    // server returns the flattened translations bag, so any key
+                    // (menu.*, my_profile, logout, …) can be swapped without a
+                    // page reload.
+                    const bag = (data && data.translations) || {};
+                    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+                        const key = el.getAttribute('data-i18n');
+                        if (bag[key]) el.textContent = bag[key];
+                    });
                     window.dispatchEvent(new CustomEvent('smk:locale-changed', { detail: { locale, translations: data.translations } }));
                 } catch (e) {
                     console.error(e);

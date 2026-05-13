@@ -33,16 +33,9 @@ class LocaleController extends Controller
 
         $translations = $service->all($data['locale']);
 
-        // Pre-extract a small map of menu labels so the Blade chrome can do an
-        // instant in-place swap without re-fetching.
-        $menu = collect($translations)
-            ->filter(fn ($_v, $k) => str_starts_with($k, 'menu.'))
-            ->all();
-
         return response()->json([
             'locale' => $data['locale'],
             'translations' => $translations,
-            'menu' => $menu,
         ]);
     }
 }
