@@ -31,14 +31,27 @@ class PermissionSeeder extends Seeder
             'suppliers' => 'Suppliers',
             'customers' => 'Customers',
             'customer_groups' => 'Customer groups',
+            // Phase 2
+            'purchases' => 'Purchases',
+            'pos_registers' => 'POS registers',
+            'pos_sessions' => 'POS sessions',
+            'pos' => 'Point of sale',
+            'sales' => 'Sales',
+            'stock_adjustments' => 'Stock adjustments',
+            'stock_transfers' => 'Stock transfers',
+            'expense_categories' => 'Expense categories',
+            'expenses' => 'Expenses',
+            'reports' => 'Reports',
         ];
 
         // Most modules have full CRUD; "permissions" / "settings" / "translations"
-        // only need read / edit.
+        // only need read / edit. POS is treated as a single permission ("use").
         $actionsByModule = collect($modules)->mapWithKeys(fn ($_l, $m) => [$m => ['view', 'create', 'edit', 'delete']])->all();
         $actionsByModule['permissions'] = ['view'];
         $actionsByModule['settings'] = ['view', 'edit'];
         $actionsByModule['translations'] = ['view', 'edit'];
+        $actionsByModule['pos'] = ['use'];
+        $actionsByModule['reports'] = ['view'];
 
         foreach ($modules as $module => $label) {
             foreach ($actionsByModule[$module] as $action) {
