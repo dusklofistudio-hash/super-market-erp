@@ -1,0 +1,180 @@
+// Bootstrap 5 ---------------------------------------------------------------
+@import "bootstrap/scss/bootstrap";
+
+// Vendor libraries ----------------------------------------------------------
+@import "flatpickr/dist/flatpickr.css";
+@import "tom-select/dist/css/tom-select.bootstrap5.css";
+@import "sweetalert2/dist/sweetalert2.min.css";
+@import "datatables.net-bs5/css/dataTables.bootstrap5.css";
+@import "datatables.net-buttons-bs5/css/buttons.bootstrap5.css";
+@import "datatables.net-responsive-bs5/css/responsive.bootstrap5.css";
+
+// CSS variables -------------------------------------------------------------
+:root {
+    --smk-sidebar-bg: #1f2937;
+    --smk-sidebar-fg: #e5e7eb;
+    --smk-sidebar-hover: #111827;
+    --smk-sidebar-active: #2563eb;
+    --smk-topbar-bg: #ffffff;
+    --smk-content-bg: #f3f4f6;
+    --smk-sidebar-width: 250px;
+    --smk-header-height: 60px;
+}
+
+html, body, #app {
+    height: 100%;
+}
+
+body {
+    background: var(--smk-content-bg);
+    font-family: 'Noto Sans', 'Noto Sans Khmer', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9rem;
+}
+
+// Sidebar -------------------------------------------------------------------
+.smk-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.smk-sidebar {
+    width: var(--smk-sidebar-width);
+    background: var(--smk-sidebar-bg);
+    color: var(--smk-sidebar-fg);
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    overflow-y: auto;
+    z-index: 1040;
+    transition: transform .2s ease;
+
+    .smk-brand {
+        height: var(--smk-header-height);
+        display: flex;
+        align-items: center;
+        padding: 0 1.25rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        background: rgba(0,0,0,.2);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    ul.smk-menu {
+        list-style: none;
+        padding: 0.75rem 0;
+        margin: 0;
+        li > a, li > button {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.55rem 1.25rem;
+            color: var(--smk-sidebar-fg);
+            text-decoration: none;
+            background: transparent;
+            border: 0;
+            width: 100%;
+            text-align: left;
+            font-size: 0.875rem;
+
+            &:hover { background: var(--smk-sidebar-hover); }
+            &.active { background: var(--smk-sidebar-active); color: #fff; }
+            .smk-caret { margin-left: auto; transition: transform .2s; }
+            &.open .smk-caret { transform: rotate(90deg); }
+        }
+        ul.smk-submenu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: rgba(0,0,0,.18);
+            display: none;
+            &.open { display: block; }
+            li > a { padding-left: 3rem; font-size: 0.825rem; }
+        }
+        .smk-section {
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            padding: 1rem 1.25rem 0.4rem;
+            letter-spacing: 0.05em;
+        }
+    }
+}
+
+.smk-main {
+    flex: 1;
+    margin-left: var(--smk-sidebar-width);
+    display: flex;
+    flex-direction: column;
+}
+
+.smk-header {
+    height: var(--smk-header-height);
+    background: var(--smk-topbar-bg);
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.smk-content {
+    padding: 1.25rem;
+    flex: 1;
+}
+
+@media (max-width: 991.98px) {
+    .smk-sidebar { transform: translateX(-100%); }
+    .smk-sidebar.show { transform: translateX(0); }
+    .smk-main { margin-left: 0; }
+}
+
+// Bootstrap 5 pagination fix (for Yajra) ------------------------------------
+.dataTables_wrapper {
+    .dataTables_paginate {
+        .pagination {
+            margin: 0;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            .page-item { margin: 0; }
+            .page-link {
+                color: #2563eb;
+                background-color: #fff;
+                border-color: #dee2e6;
+                padding: 0.375rem 0.75rem;
+            }
+            .page-item.active .page-link {
+                background-color: #2563eb;
+                border-color: #2563eb;
+                color: #fff;
+            }
+            .page-item.disabled .page-link {
+                color: #6c757d;
+                background-color: #fff;
+                border-color: #dee2e6;
+            }
+        }
+    }
+    .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate {
+        margin-bottom: 0.5rem;
+    }
+}
+
+.card { box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.table thead th { font-weight: 600; font-size: 0.825rem; text-transform: uppercase; letter-spacing: 0.02em; }
+
+.lang-flag {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    display: inline-block;
+    background-size: cover;
+    background-position: center;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+    border: 1px solid #ccc;
+}
+.lang-flag.en { background: linear-gradient(180deg,#012169 33%, #fff 33%, #fff 66%, #c8102e 66%); }
+.lang-flag.kh { background: linear-gradient(180deg,#032ea1 33%, #e00025 33%, #e00025 66%, #032ea1 66%); }
