@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const I18nContext = createContext(null);
 
@@ -30,11 +30,29 @@ export function I18nProvider({ children, initial = {}, initialLocale = 'en', ava
             }
             setLocale(next);
             document.documentElement.setAttribute('lang', next);
-            window.dispatchEvent(new CustomEvent('smk:locale-changed', { detail: { locale: next } }));
+            window.dispatchEvent(new CustomEvent('smk:locale-changed', { detail: { locale: next, translations: data.translations } }));
         } catch (e) {
             console.error('Failed to switch locale', e);
         }
     }, [locale]);
+
+    // The Blade-side switcher (resources/views/admin/layouts/scripts.blade.php)
+    // POSTs to /admin/locale on its own and then fires `smk:locale-changed`.
+    // Mirror that into React state so every `t()` call refreshes without
+    // requiring a full page reload.
+    useEffect(() => {
+        const handler = (e) => {
+            const next = e?.detail?.locale;
+            const bag = e?.detail?.translations;
+            if (!next) return;
+            if (bag) {
+                setTranslations((prev) => ({ ...prev, [next]: bag }));
+            }
+            setLocale(next);
+        };
+        window.addEventListener('smk:locale-changed', handler);
+        return () => window.removeEventListener('smk:locale-changed', handler);
+    }, []);
 
     const value = useMemo(() => ({ locale, t, changeLocale, availableLocales }),
         [locale, t, changeLocale, availableLocales]);

@@ -7,41 +7,44 @@
     $user = auth()->user();
     $can = fn ($perm) => $user && $user->hasPermission($perm);
     $is = fn ($prefix) => request()->routeIs($prefix);
+    // Each menu entry carries its dotted i18n key so we can both render the
+    // server-side translation AND emit `data-i18n` so the no-refresh language
+    // switcher in scripts.blade.php can update the text in place.
     $sections = [
         [
-            'label' => __('messages.menu.main'),
+            'key' => 'menu.main',
             'items' => [
-                ['label' => __('messages.menu.dashboard'), 'route' => 'admin.dashboard', 'icon' => 'home', 'permission' => null],
+                ['key' => 'menu.dashboard', 'route' => 'admin.dashboard', 'icon' => 'home', 'permission' => null],
             ],
         ],
         [
-            'label' => __('messages.menu.catalog'),
+            'key' => 'menu.catalog',
             'items' => [
-                ['label' => __('messages.menu.categories'), 'route' => 'admin.categories.index', 'icon' => 'tag', 'permission' => 'categories.view'],
-                ['label' => __('messages.menu.brands'), 'route' => 'admin.brands.index', 'icon' => 'award', 'permission' => 'brands.view'],
-                ['label' => __('messages.menu.units'), 'route' => 'admin.units.index', 'icon' => 'package', 'permission' => 'units.view'],
-                ['label' => __('messages.menu.tax_rates'), 'route' => 'admin.tax-rates.index', 'icon' => 'percent', 'permission' => 'tax_rates.view'],
-                ['label' => __('messages.menu.products'), 'route' => 'admin.products.index', 'icon' => 'box', 'permission' => 'products.view'],
+                ['key' => 'menu.categories', 'route' => 'admin.categories.index', 'icon' => 'tag', 'permission' => 'categories.view'],
+                ['key' => 'menu.brands', 'route' => 'admin.brands.index', 'icon' => 'award', 'permission' => 'brands.view'],
+                ['key' => 'menu.units', 'route' => 'admin.units.index', 'icon' => 'package', 'permission' => 'units.view'],
+                ['key' => 'menu.tax_rates', 'route' => 'admin.tax-rates.index', 'icon' => 'percent', 'permission' => 'tax_rates.view'],
+                ['key' => 'menu.products', 'route' => 'admin.products.index', 'icon' => 'box', 'permission' => 'products.view'],
             ],
         ],
         [
-            'label' => __('messages.menu.parties'),
+            'key' => 'menu.parties',
             'items' => [
-                ['label' => __('messages.menu.suppliers'), 'route' => 'admin.suppliers.index', 'icon' => 'truck', 'permission' => 'suppliers.view'],
-                ['label' => __('messages.menu.customers'), 'route' => 'admin.customers.index', 'icon' => 'users', 'permission' => 'customers.view'],
-                ['label' => __('messages.menu.customer_groups'), 'route' => 'admin.customer-groups.index', 'icon' => 'user-check', 'permission' => 'customer_groups.view'],
+                ['key' => 'menu.suppliers', 'route' => 'admin.suppliers.index', 'icon' => 'truck', 'permission' => 'suppliers.view'],
+                ['key' => 'menu.customers', 'route' => 'admin.customers.index', 'icon' => 'users', 'permission' => 'customers.view'],
+                ['key' => 'menu.customer_groups', 'route' => 'admin.customer-groups.index', 'icon' => 'user-check', 'permission' => 'customer_groups.view'],
             ],
         ],
         [
-            'label' => __('messages.menu.administration'),
+            'key' => 'menu.administration',
             'items' => [
-                ['label' => __('messages.menu.branches'), 'route' => 'admin.branches.index', 'icon' => 'git-branch', 'permission' => 'branches.view'],
-                ['label' => __('messages.menu.users'), 'route' => 'admin.users.index', 'icon' => 'user', 'permission' => 'users.view'],
-                ['label' => __('messages.menu.roles'), 'route' => 'admin.roles.index', 'icon' => 'shield', 'permission' => 'roles.view'],
-                ['label' => __('messages.menu.permissions'), 'route' => 'admin.permissions.index', 'icon' => 'key', 'permission' => 'permissions.view'],
-                ['label' => __('messages.menu.languages'), 'route' => 'admin.languages.index', 'icon' => 'globe', 'permission' => 'languages.view'],
-                ['label' => __('messages.menu.translations'), 'route' => 'admin.translations.index', 'icon' => 'message-square', 'permission' => 'translations.view'],
-                ['label' => __('messages.menu.settings'), 'route' => 'admin.settings.edit', 'icon' => 'settings', 'permission' => 'settings.view'],
+                ['key' => 'menu.branches', 'route' => 'admin.branches.index', 'icon' => 'git-branch', 'permission' => 'branches.view'],
+                ['key' => 'menu.users', 'route' => 'admin.users.index', 'icon' => 'user', 'permission' => 'users.view'],
+                ['key' => 'menu.roles', 'route' => 'admin.roles.index', 'icon' => 'shield', 'permission' => 'roles.view'],
+                ['key' => 'menu.permissions', 'route' => 'admin.permissions.index', 'icon' => 'key', 'permission' => 'permissions.view'],
+                ['key' => 'menu.languages', 'route' => 'admin.languages.index', 'icon' => 'globe', 'permission' => 'languages.view'],
+                ['key' => 'menu.translations', 'route' => 'admin.translations.index', 'icon' => 'message-square', 'permission' => 'translations.view'],
+                ['key' => 'menu.settings', 'route' => 'admin.settings.edit', 'icon' => 'settings', 'permission' => 'settings.view'],
             ],
         ],
     ];
@@ -59,7 +62,7 @@
                 $visibleItems = array_filter($section['items'], fn ($it) => empty($it['permission']) || $can($it['permission']));
             @endphp
             @if (count($visibleItems))
-                <li class="smk-section">{{ $section['label'] }}</li>
+                <li class="smk-section" data-i18n="{{ $section['key'] }}">{{ __('messages.'.$section['key']) }}</li>
                 @foreach ($visibleItems as $item)
                     <li>
                         <a href="{{ \Illuminate\Support\Facades\Route::has($item['route']) ? route($item['route']) : '#' }}"
@@ -85,7 +88,7 @@
                                     @case('settings')<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>@break
                                 @endswitch
                             </svg>
-                            <span>{{ $item['label'] }}</span>
+                            <span data-i18n="{{ $item['key'] }}">{{ __('messages.'.$item['key']) }}</span>
                         </a>
                     </li>
                 @endforeach
