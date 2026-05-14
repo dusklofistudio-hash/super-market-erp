@@ -6,13 +6,23 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerGroupController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ExpenseCategoryController;
+use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\LocaleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\PosController;
+use App\Http\Controllers\Admin\PosRegisterController;
+use App\Http\Controllers\Admin\PosSessionController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\PurchaseController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StockAdjustmentController;
+use App\Http\Controllers\Admin\StockTransferController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\Admin\TranslationController;
@@ -168,4 +178,144 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
             Route::delete("$slug/{{$param}}", [$controller, 'destroy'])->name("$slug.destroy");
         });
     }
+
+    // ---------------------------------------------------------------
+    // Phase 2 — Operations
+    // ---------------------------------------------------------------
+
+    // Purchases (CRUD + show + add payment)
+    Route::middleware('permission:purchases.view')->group(function () {
+        Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+        Route::get('purchases/data', [PurchaseController::class, 'data'])->name('purchases.data');
+        Route::get('purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
+    });
+    Route::middleware('permission:purchases.create')->group(function () {
+        Route::get('purchases/create/new', [PurchaseController::class, 'create'])->name('purchases.create');
+        Route::post('purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+        Route::post('purchases/{purchase}/payments', [PurchaseController::class, 'addPayment'])->name('purchases.payments.add');
+    });
+    Route::middleware('permission:purchases.edit')->group(function () {
+        Route::get('purchases/{purchase}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
+        Route::put('purchases/{purchase}', [PurchaseController::class, 'update'])->name('purchases.update');
+    });
+    Route::middleware('permission:purchases.delete')->group(function () {
+        Route::delete('purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+    });
+
+    // POS registers (full CRUD)
+    Route::middleware('permission:pos_registers.view')->group(function () {
+        Route::get('pos-registers', [PosRegisterController::class, 'index'])->name('pos-registers.index');
+        Route::get('pos-registers/data', [PosRegisterController::class, 'data'])->name('pos-registers.data');
+    });
+    Route::middleware('permission:pos_registers.create')->group(function () {
+        Route::get('pos-registers/create', [PosRegisterController::class, 'create'])->name('pos-registers.create');
+        Route::post('pos-registers', [PosRegisterController::class, 'store'])->name('pos-registers.store');
+    });
+    Route::middleware('permission:pos_registers.edit')->group(function () {
+        Route::get('pos-registers/{pos_register}/edit', [PosRegisterController::class, 'edit'])->name('pos-registers.edit');
+        Route::put('pos-registers/{pos_register}', [PosRegisterController::class, 'update'])->name('pos-registers.update');
+    });
+    Route::middleware('permission:pos_registers.delete')->group(function () {
+        Route::delete('pos-registers/{pos_register}', [PosRegisterController::class, 'destroy'])->name('pos-registers.destroy');
+    });
+
+    // POS sessions (open/close/index/data only)
+    Route::middleware('permission:pos_sessions.view')->group(function () {
+        Route::get('pos-sessions', [PosSessionController::class, 'index'])->name('pos-sessions.index');
+        Route::get('pos-sessions/data', [PosSessionController::class, 'data'])->name('pos-sessions.data');
+    });
+    Route::middleware('permission:pos_sessions.create')->group(function () {
+        Route::post('pos-sessions/open', [PosSessionController::class, 'open'])->name('pos-sessions.open');
+    });
+    Route::middleware('permission:pos_sessions.edit')->group(function () {
+        Route::post('pos-sessions/{pos_session}/close', [PosSessionController::class, 'close'])->name('pos-sessions.close');
+    });
+
+    // POS register UI + checkout
+    Route::middleware('permission:pos.use')->group(function () {
+        Route::get('pos/register', [PosController::class, 'register'])->name('pos.register');
+        Route::post('pos/checkout', [PosController::class, 'checkout'])->name('pos.checkout');
+    });
+
+    // Sales (index + data + show + destroy)
+    Route::middleware('permission:sales.view')->group(function () {
+        Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+        Route::get('sales/data', [SaleController::class, 'data'])->name('sales.data');
+        Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+    });
+    Route::middleware('permission:sales.delete')->group(function () {
+        Route::delete('sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
+    });
+
+    // Stock adjustments
+    Route::middleware('permission:stock_adjustments.view')->group(function () {
+        Route::get('stock-adjustments', [StockAdjustmentController::class, 'index'])->name('stock-adjustments.index');
+        Route::get('stock-adjustments/data', [StockAdjustmentController::class, 'data'])->name('stock-adjustments.data');
+    });
+    Route::middleware('permission:stock_adjustments.create')->group(function () {
+        Route::get('stock-adjustments/create', [StockAdjustmentController::class, 'create'])->name('stock-adjustments.create');
+        Route::post('stock-adjustments', [StockAdjustmentController::class, 'store'])->name('stock-adjustments.store');
+    });
+    Route::middleware('permission:stock_adjustments.delete')->group(function () {
+        Route::delete('stock-adjustments/{stock_adjustment}', [StockAdjustmentController::class, 'destroy'])->name('stock-adjustments.destroy');
+    });
+
+    // Stock transfers
+    Route::middleware('permission:stock_transfers.view')->group(function () {
+        Route::get('stock-transfers', [StockTransferController::class, 'index'])->name('stock-transfers.index');
+        Route::get('stock-transfers/data', [StockTransferController::class, 'data'])->name('stock-transfers.data');
+        Route::get('stock-transfers/{stock_transfer}', [StockTransferController::class, 'show'])->name('stock-transfers.show');
+    });
+    Route::middleware('permission:stock_transfers.create')->group(function () {
+        Route::get('stock-transfers/create/new', [StockTransferController::class, 'create'])->name('stock-transfers.create');
+        Route::post('stock-transfers', [StockTransferController::class, 'store'])->name('stock-transfers.store');
+    });
+    Route::middleware('permission:stock_transfers.edit')->group(function () {
+        Route::post('stock-transfers/{stock_transfer}/receive', [StockTransferController::class, 'receive'])->name('stock-transfers.receive');
+    });
+    Route::middleware('permission:stock_transfers.delete')->group(function () {
+        Route::delete('stock-transfers/{stock_transfer}', [StockTransferController::class, 'destroy'])->name('stock-transfers.destroy');
+    });
+
+    // Expense categories (full CRUD)
+    Route::middleware('permission:expense_categories.view')->group(function () {
+        Route::get('expense-categories', [ExpenseCategoryController::class, 'index'])->name('expense-categories.index');
+        Route::get('expense-categories/data', [ExpenseCategoryController::class, 'data'])->name('expense-categories.data');
+    });
+    Route::middleware('permission:expense_categories.create')->group(function () {
+        Route::get('expense-categories/create', [ExpenseCategoryController::class, 'create'])->name('expense-categories.create');
+        Route::post('expense-categories', [ExpenseCategoryController::class, 'store'])->name('expense-categories.store');
+    });
+    Route::middleware('permission:expense_categories.edit')->group(function () {
+        Route::get('expense-categories/{expense_category}/edit', [ExpenseCategoryController::class, 'edit'])->name('expense-categories.edit');
+        Route::put('expense-categories/{expense_category}', [ExpenseCategoryController::class, 'update'])->name('expense-categories.update');
+    });
+    Route::middleware('permission:expense_categories.delete')->group(function () {
+        Route::delete('expense-categories/{expense_category}', [ExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
+    });
+
+    // Expenses (full CRUD)
+    Route::middleware('permission:expenses.view')->group(function () {
+        Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('expenses/data', [ExpenseController::class, 'data'])->name('expenses.data');
+    });
+    Route::middleware('permission:expenses.create')->group(function () {
+        Route::get('expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+        Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    });
+    Route::middleware('permission:expenses.edit')->group(function () {
+        Route::get('expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
+        Route::put('expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+    });
+    Route::middleware('permission:expenses.delete')->group(function () {
+        Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+    });
+
+    // Reports
+    Route::middleware('permission:reports.view')->group(function () {
+        Route::get('reports/sales-summary', [ReportController::class, 'salesSummary'])->name('reports.sales-summary');
+        Route::get('reports/stock-by-branch', [ReportController::class, 'stockByBranch'])->name('reports.stock-by-branch');
+        Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
+        Route::get('reports/expenses', [ReportController::class, 'expenses'])->name('reports.expenses');
+    });
 });

@@ -37,13 +37,20 @@ class RoleSeeder extends Seeder
         // Admin: every permission except sensitive ones (we keep them too).
         $admin->syncPermissions($all);
 
-        // Cashier: minimal — view products + customers.
+        // Cashier: POS operator — needs to use the register, see products /
+        // customers, create new walk-in customers and view sales history.
         $cashier->syncPermissions(
             Permission::query()->whereIn('slug', [
                 'products.view',
                 'customers.view',
                 'customers.create',
                 'customers.edit',
+                'pos.use',
+                'sales.view',
+                'sales.create',
+                'pos_sessions.view',
+                'pos_sessions.create',
+                'pos_sessions.edit',
             ])->pluck('id')->all()
         );
     }
