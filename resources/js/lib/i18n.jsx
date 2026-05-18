@@ -54,6 +54,16 @@ export function I18nProvider({ children, initial = {}, initialLocale = 'en', ava
         return () => window.removeEventListener('smk:locale-changed', handler);
     }, []);
 
+    // Expose a stable global lookup so non-React modules (e.g. the Yajra
+    // delegated click handler in RowActions, the locale-switcher script in
+    // scripts.blade.php) can localize text without a context.
+    useEffect(() => {
+        window.__smkT = (key, replacements = {}) => t(key, replacements);
+        return () => {
+            if (window.__smkT && window.__smkT.__owner === t) delete window.__smkT;
+        };
+    }, [t]);
+
     const value = useMemo(() => ({ locale, t, changeLocale, availableLocales }),
         [locale, t, changeLocale, availableLocales]);
 

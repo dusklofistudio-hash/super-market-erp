@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,11 +42,19 @@ class LoginController extends Controller
             $request->session()->put('locale', $locale);
         }
 
+        app(ActivityLogger::class)->log('auth.login', $request->user(), [
+            'via' => $field,
+        ]);
+
         return redirect()->intended(route('admin.dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse
     {
+        $user = $request->user();
+        if ($user) {
+            app(ActivityLogger::class)->log('auth.logout', $user);
+        }
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

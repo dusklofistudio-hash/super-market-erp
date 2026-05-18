@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\PosSession;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Services\ActivityLogger;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class PosController extends Controller
         ]);
     }
 
-    public function checkout(SaleRequest $request, StockService $stock): RedirectResponse
+    public function checkout(SaleRequest $request, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
         $sale = DB::transaction(function () use ($request, $stock) {
             $items = $request->validated()['items'];
@@ -92,6 +93,12 @@ class PosController extends Controller
 
             return $sale;
         });
+
+        $logger->log('sale.completed', $sale, [
+            'ref_no' => $sale->ref_no,
+            'total' => (float) $sale->total,
+            'paid' => (float) $sale->paid,
+        ]);
 
         sweetalert()->success(__('messages.success.created', ['resource' => __('messages.menu.sales')]));
 

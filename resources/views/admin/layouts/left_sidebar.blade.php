@@ -67,6 +67,7 @@
                 ['key' => 'menu.permissions', 'route' => 'admin.permissions.index', 'icon' => 'key', 'permission' => 'permissions.view'],
                 ['key' => 'menu.languages', 'route' => 'admin.languages.index', 'icon' => 'globe', 'permission' => 'languages.view'],
                 ['key' => 'menu.translations', 'route' => 'admin.translations.index', 'icon' => 'message-square', 'permission' => 'translations.view'],
+                ['key' => 'menu.activity_logs', 'route' => 'admin.activity-logs.index', 'icon' => 'list', 'permission' => 'activity_logs.view'],
                 ['key' => 'menu.settings', 'route' => 'admin.settings.edit', 'icon' => 'settings', 'permission' => 'settings.view'],
             ],
         ],
@@ -121,6 +122,7 @@
                                     @case('database')<ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>@break
                                     @case('trending-up')<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>@break
                                     @case('pie-chart')<path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path>@break
+                                    @case('list')<line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>@break
                                     @default <circle cx="12" cy="12" r="9"></circle>
                                 @endswitch
                             </svg>

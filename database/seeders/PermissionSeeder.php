@@ -42,6 +42,7 @@ class PermissionSeeder extends Seeder
             'expense_categories' => 'Expense categories',
             'expenses' => 'Expenses',
             'reports' => 'Reports',
+            'activity_logs' => 'Activity logs',
         ];
 
         // Most modules have full CRUD; "permissions" / "settings" / "translations"
@@ -52,6 +53,7 @@ class PermissionSeeder extends Seeder
         $actionsByModule['translations'] = ['view', 'edit'];
         $actionsByModule['pos'] = ['use'];
         $actionsByModule['reports'] = ['view'];
+        $actionsByModule['activity_logs'] = ['view'];
 
         foreach ($modules as $module => $label) {
             foreach ($actionsByModule[$module] as $action) {

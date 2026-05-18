@@ -81,6 +81,7 @@ return [
         'permissions' => 'Permissions',
         'languages' => 'Languages',
         'translations' => 'Translations',
+        'activity_logs' => 'Activity Logs',
         'settings' => 'Settings',
     ],
 
@@ -166,6 +167,10 @@ return [
         'expenses' => [
             'title' => 'Expenses',
         ],
+        'activity_logs' => [
+            'title' => 'Activity logs',
+            'subtitle' => 'Audit trail of user actions across the system.',
+        ],
     ],
 
     'fields' => [
@@ -250,6 +255,13 @@ return [
         'from' => 'From',
         'to' => 'To',
         'count' => 'Count',
+        'user' => 'User',
+        'action' => 'Action',
+        'subject' => 'Subject',
+        'ip' => 'IP',
+        'payload' => 'Payload',
+        'avatar' => 'Avatar',
+        'locale' => 'Locale',
     ],
 
     'statuses' => [
@@ -299,5 +311,20 @@ return [
         'sales_total' => 'Sales total',
         'purchases_total' => 'Purchases total',
         'expenses_total' => 'Expenses total',
+    ],
+
+    'auth' => [
+        'forgot_password' => [
+            'title' => 'Forgot password',
+            'subtitle' => 'Enter your email and we will send you a reset link.',
+            'send_link' => 'Send reset link',
+            'back_to_login' => 'Back to sign in',
+        ],
+        'reset_password' => [
+            'title' => 'Reset password',
+            'subtitle' => 'Choose a new password to regain access.',
+            'confirm' => 'Confirm password',
+            'submit' => 'Update password',
+        ],
     ],
 ];

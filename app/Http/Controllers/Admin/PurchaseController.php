@@ -10,6 +10,7 @@ use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
+use App\Services\ActivityLogger;
 use App\Services\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -64,7 +65,7 @@ class PurchaseController extends Controller
         return Inertia::render('Purchases/Form', $this->formData(null));
     }
 
-    public function store(PurchaseRequest $request, StockService $stock): RedirectResponse
+    public function store(PurchaseRequest $request, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
         $purchase = DB::transaction(function () use ($request, $stock) {
             $totals = $this->computeTotals($request->validated()['items'], (float) ($request->discount ?? 0));
@@ -99,6 +100,8 @@ class PurchaseController extends Controller
             return $purchase;
         });
 
+        $logger->log('purchase.created', $purchase, ['ref_no' => $purchase->ref_no, 'total' => (float) $purchase->total]);
+
         sweetalert()->success(__('messages.success.created', ['resource' => __('messages.menu.purchases')]));
 
         return redirect()->route('admin.purchases.show', $purchase)
@@ -119,7 +122,7 @@ class PurchaseController extends Controller
         return Inertia::render('Purchases/Form', $this->formData($purchase));
     }
 
-    public function update(PurchaseRequest $request, Purchase $purchase, StockService $stock): RedirectResponse
+    public function update(PurchaseRequest $request, Purchase $purchase, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
         DB::transaction(function () use ($request, $purchase, $stock) {
             // Reverse existing stock impact for this purchase.
@@ -154,20 +157,24 @@ class PurchaseController extends Controller
             }
         });
 
+        $logger->log('purchase.updated', $purchase, ['ref_no' => $purchase->ref_no, 'total' => (float) $purchase->total]);
+
         sweetalert()->success(__('messages.success.updated', ['resource' => __('messages.menu.purchases')]));
 
         return redirect()->route('admin.purchases.show', $purchase)
             ->with('success', __('messages.success.updated', ['resource' => __('messages.menu.purchases')]));
     }
 
-    public function destroy(Purchase $purchase, StockService $stock): RedirectResponse
+    public function destroy(Purchase $purchase, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
+        $payload = ['ref_no' => $purchase->ref_no, 'total' => (float) $purchase->total];
         DB::transaction(function () use ($purchase, $stock) {
             foreach ($purchase->items as $item) {
                 $stock->applyDelta((int) $purchase->branch_id, (int) $item->product_id, -1 * (float) $item->qty);
             }
             $purchase->delete();
         });
+        $logger->log('purchase.deleted', $purchase, $payload);
 
         sweetalert()->success(__('messages.success.deleted', ['resource' => __('messages.menu.purchases')]));
 
