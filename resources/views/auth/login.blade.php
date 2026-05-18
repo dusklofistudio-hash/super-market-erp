@@ -39,6 +39,9 @@
                     <label class="form-check-label" for="remember">{{ __('messages.remember_me') }}</label>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">{{ __('messages.login') }}</button>
+                <div class="text-center mt-3">
+                    <a href="{{ route('password.request') }}" class="small">{{ __('messages.auth.forgot_password.title') }}?</a>
+                </div>
             </form>
         </div>
     </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -29,6 +30,8 @@ use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/admin');
@@ -318,4 +321,23 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('reports/profit', [ReportController::class, 'profit'])->name('reports.profit');
         Route::get('reports/expenses', [ReportController::class, 'expenses'])->name('reports.expenses');
     });
+
+    // Activity log viewer (read-only)
+    Route::middleware('permission:activity_logs.view')->group(function () {
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('activity-logs/data', [ActivityLogController::class, 'data'])->name('activity-logs.data');
+    });
+
+    // Password reset (in-app — admins can email themselves a reset link)
+    Route::get('forgot-password/done', function () {
+        return view('auth.password_sent');
+    })->name('password.sent');
+});
+
+// Public password reset flow (uses the password_reset_tokens table).
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });

@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\StockAdjustmentRequest;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\StockAdjustment;
+use App\Services\ActivityLogger;
 use App\Services\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -52,9 +53,9 @@ class StockAdjustmentController extends Controller
         return Inertia::render('StockAdjustments/Form', $this->formData());
     }
 
-    public function store(StockAdjustmentRequest $request, StockService $stock): RedirectResponse
+    public function store(StockAdjustmentRequest $request, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
-        DB::transaction(function () use ($request, $stock) {
+        $adjustment = DB::transaction(function () use ($request, $stock) {
             $adj = StockAdjustment::create([
                 'ref_no' => 'ADJ-'.now()->format('Ymd').'-'.strtoupper(substr(md5(uniqid('', true)), 0, 6)),
                 'branch_id' => $request->branch_id,
@@ -71,7 +72,14 @@ class StockAdjustmentController extends Controller
                 ]);
                 $stock->applyDelta((int) $adj->branch_id, (int) $row['product_id'], $sign * (float) $row['qty']);
             }
+
+            return $adj;
         });
+
+        $logger->log('stock_adjustment.created', $adjustment, [
+            'ref_no' => $adjustment->ref_no,
+            'type' => $adjustment->type,
+        ]);
 
         sweetalert()->success(__('messages.success.created', ['resource' => __('messages.menu.stock_adjustments')]));
 

@@ -29,7 +29,15 @@ export function RowActions({ editHref, onDelete }) {
 
 /** Imperative confirm + delete using SweetAlert2 + Inertia. */
 export function confirmAndDelete(url, onSuccess) {
-    return confirmDelete({}).then((res) => {
+    const tt = typeof window !== 'undefined' && typeof window.__smkT === 'function'
+        ? window.__smkT
+        : (k) => k;
+    return confirmDelete({
+        title: tt('confirm_delete.title'),
+        text: tt('confirm_delete.text'),
+        confirmText: tt('confirm_delete.confirm'),
+        cancelText: tt('confirm_delete.cancel'),
+    }).then((res) => {
         if (!res.isConfirmed) return;
         router.delete(url, {
             preserveScroll: true,
@@ -39,15 +47,23 @@ export function confirmAndDelete(url, onSuccess) {
 }
 
 // Delegated handler used by Yajra-rendered action buttons. We use data-attrs
-// to keep the integration with raw HTML simple.
+// to keep the integration with raw HTML simple. The global click listener is
+// registered exactly once via a window flag so calling smkBindRowActions
+// repeatedly (every DataTable redraw) does not stack handlers — each call
+// only swaps the `reload` callback that will be invoked on success.
 if (typeof window !== 'undefined') {
-    window.smkBindRowActions = function (reload) {
+    window.__smkRowActionsReload = null;
+    if (!window.__smkRowActionsBound) {
         document.addEventListener('click', function (e) {
             const btn = e.target.closest('[data-smk-delete]');
             if (!btn) return;
             e.preventDefault();
             const url = btn.getAttribute('data-smk-delete');
-            confirmAndDelete(url, reload);
+            confirmAndDelete(url, window.__smkRowActionsReload || undefined);
         });
+        window.__smkRowActionsBound = true;
+    }
+    window.smkBindRowActions = function (reload) {
+        window.__smkRowActionsReload = reload || null;
     };
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\StockTransferRequest;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\StockTransfer;
+use App\Services\ActivityLogger;
 use App\Services\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -55,7 +56,7 @@ class StockTransferController extends Controller
         return Inertia::render('StockTransfers/Form', $this->formData());
     }
 
-    public function store(StockTransferRequest $request, StockService $stock): RedirectResponse
+    public function store(StockTransferRequest $request, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
         $transfer = DB::transaction(function () use ($request, $stock) {
             $t = StockTransfer::create([
@@ -77,6 +78,8 @@ class StockTransferController extends Controller
             return $t;
         });
 
+        $logger->log('stock_transfer.sent', $transfer, ['ref_no' => $transfer->ref_no]);
+
         sweetalert()->success(__('messages.success.created', ['resource' => __('messages.menu.stock_transfers')]));
 
         return redirect()->route('admin.stock-transfers.show', $transfer);
@@ -89,7 +92,7 @@ class StockTransferController extends Controller
         return Inertia::render('StockTransfers/Show', ['transfer' => $stock_transfer]);
     }
 
-    public function receive(StockTransfer $stock_transfer, StockService $stock): RedirectResponse
+    public function receive(StockTransfer $stock_transfer, StockService $stock, ActivityLogger $logger): RedirectResponse
     {
         if ($stock_transfer->status !== 'sent') {
             return back();
@@ -100,6 +103,8 @@ class StockTransferController extends Controller
             }
             $stock_transfer->update(['status' => 'received']);
         });
+
+        $logger->log('stock_transfer.received', $stock_transfer, ['ref_no' => $stock_transfer->ref_no]);
 
         sweetalert()->success(__('messages.transfer_received'));
 
