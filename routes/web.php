@@ -327,11 +327,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('activity-logs/data', [ActivityLogController::class, 'data'])->name('activity-logs.data');
     });
-
-    // Password reset (in-app — admins can email themselves a reset link)
-    Route::get('forgot-password/done', function () {
-        return view('auth.password_sent');
-    })->name('password.sent');
 });
 
 // Public password reset flow (uses the password_reset_tokens table).
