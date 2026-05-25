@@ -72,7 +72,7 @@ app/
   Support/Uploads              # Tiny file-upload helper
 database/
   migrations/2026_05_13_*      # Single consolidated migration (~30 tables)
-  seeders/                     # Languages, Permissions, Roles, Admin user, Catalog
+  seeders/                     # One seeder per table (41 total) orchestrated by DatabaseSeeder
 lang/
   en/messages.php              # English UI strings
   kh/messages.php              # Khmer UI strings
